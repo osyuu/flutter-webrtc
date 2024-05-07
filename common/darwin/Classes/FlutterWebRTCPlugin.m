@@ -95,6 +95,25 @@ void postEvent(FlutterEventSink sink, id _Nullable event) {
   AVAudioSessionPort _preferredInput;
 }
 
+static FlutterWebRTCPlugin *sharedSingleton;
+static NSString *sharedPeerConnectionId;
+
++ (FlutterWebRTCPlugin*)sharedSingleton
+{
+  @synchronized(self)
+  {
+    return sharedSingleton;
+  }
+}
+
++ (NSString*)sharedPeerConnectionId
+{
+  @synchronized(self)
+  {
+    return sharedPeerConnectionId;
+  }
+}
+
 @synthesize messenger = _messenger;
 @synthesize eventSink = _eventSink;
 @synthesize preferredInput = _preferredInput;
@@ -126,6 +145,7 @@ void postEvent(FlutterEventSink sink, id _Nullable event) {
                    withTextures:(NSObject<FlutterTextureRegistry>*)textures {
 
   self = [super init];
+  sharedSingleton = self;
 
   FlutterEventChannel* eventChannel =
       [FlutterEventChannel eventChannelWithName:@"FlutterWebRTC.Event" binaryMessenger:messenger];
@@ -286,6 +306,8 @@ void postEvent(FlutterEventSink sink, id _Nullable event) {
 
     NSString* peerConnectionId = [[NSUUID UUID] UUIDString];
     peerConnection.flutterId = peerConnectionId;
+
+    sharedPeerConnectionId = peerConnectionId;
 
     /*Create Event Channel.*/
     peerConnection.eventChannel = [FlutterEventChannel
@@ -1573,7 +1595,7 @@ void postEvent(FlutterEventSink sink, id _Nullable event) {
     NSNumber* maxIPv6Networks = json[@"maxIPv6Networks"];
      config.maxIPv6Networks = [maxIPv6Networks intValue];
   }
-    
+
   // === below is private api in webrtc ===
   if (json[@"tcpCandidatePolicy"] != nil &&
       [json[@"tcpCandidatePolicy"] isKindOfClass:[NSString class]]) {
@@ -1791,7 +1813,7 @@ void postEvent(FlutterEventSink sink, id _Nullable event) {
       @"kind" : codec.kind
     }];
   }
-    
+
   NSString *degradationPreference = @"balanced";
   if(parameters.degradationPreference != nil) {
     if ([parameters.degradationPreference intValue] == RTCDegradationPreferenceMaintainFramerate ) {
@@ -2007,7 +2029,7 @@ void postEvent(FlutterEventSink sink, id _Nullable event) {
   NSArray<RTCRtpEncodingParameters*>* currentEncodings = parameters.encodings;
   // new encodings
   NSArray* newEncodings = [newParameters objectForKey:@"encodings"];
-    
+
   NSString *degradationPreference = [newParameters objectForKey:@"degradationPreference"];
 
   if( degradationPreference != nil) {

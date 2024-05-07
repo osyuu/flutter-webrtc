@@ -619,4 +619,7 @@ class RTCPeerConnectionNative extends RTCPeerConnection {
       throw 'Unable to RTCPeerConnection::addTransceiver: ${e.message}';
     }
   }
+
+  @override
+  String get peerConnectionId => _peerConnectionId;
 }

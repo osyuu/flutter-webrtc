@@ -62,6 +62,9 @@ typedef void (^CapturerStopHandler)(CompletionHandler handler);
 - (void)ensureAudioSession;
 - (void)deactiveRtcAudioSession;
 
++ (FlutterWebRTCPlugin*)sharedSingleton;
++ (NSString*)sharedPeerConnectionId;
+
 - (RTCRtpReceiver*)getRtpReceiverById:(RTCPeerConnection*)peerConnection Id:(NSString*)Id;
 - (RTCRtpSender*)getRtpSenderById:(RTCPeerConnection*)peerConnection Id:(NSString*)Id;
 
